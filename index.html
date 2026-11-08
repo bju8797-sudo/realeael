@@ -14,7 +14,6 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            /* PC 등 넓은 화면에서 볼 때 양옆 여백을 예쁜 숲 배경색으로 채움 */
             background-color: #1b5e20;
             font-family: 'Jua', 'Gamja Flower', '맑은 고딕', sans-serif;
             user-select: none;
@@ -24,13 +23,12 @@
             align-items: center;
         }
 
-        /* ---------------- [ 스마트폰 비율 프레임 컨테이너 ] ---------------- */
         #game-container {
             position: relative;
             width: 100%;
-            max-width: 430px; /* 스마트폰 최대 폭 제한 */
+            max-width: 430px;
             height: 100%;
-            max-height: 932px; /* 스마트폰 최대 높이 제한 (아이폰 프로맥스 비율 기준) */
+            max-height: 932px;
             display: flex;
             flex-direction: column;
             background-color: #e8f5e9;
@@ -43,7 +41,7 @@
         @media (min-width: 431px) {
             #game-container {
                 height: 92vh;
-                border-radius: 36px; /* PC에서는 스마트폰처럼 모서리를 둥글게 처리 */
+                border-radius: 36px;
                 border: 8px solid #33691e;
             }
         }
@@ -223,7 +221,7 @@
             cursor: pointer;
         }
 
-        /* ---------------- [ 메인 화면 & 세로 3인칭 맵 ] ---------------- */
+        /* ---------------- [ 메인 화면 & 3인칭 맵 ] ---------------- */
         .main-screen {
             flex: 1;
             background: linear-gradient(to bottom, #c8e6c9, #aed581);
@@ -596,7 +594,7 @@
                 { id: 'npc_geunsik', name: '박근식', x: 155, y: 130, type: 'photo', photoUrl: () => processedGeunsikUrl, clipId: 'headCutoutGeunsik', shirtColor: '#3F51B5', isTarget: true, showTag: true, imgX: 12, imgY: -2, imgW: 100, imgH: 125 },
                 { id: 'npc_chanyoung', name: '김찬영', x: 205, y: 130, type: 'photo', photoUrl: () => processedChanyoungUrl, clipId: 'headCutoutStandard', shirtColor: '#D84315', reply: "김찬영 : 나 근식이이랑 같이 석유화학공업 수업 복습 중이었어!", showTag: true, imgX: -12, imgY: -15, imgW: 150, imgH: 195 },
                 { id: 'npc_youngwoo', name: '김영우', x: 135, y: 270, approachX: 255, approachY: 130, type: 'photo', photoUrl: () => processedYoungwooUrl, clipId: 'headCutoutStandard', shirtColor: '#1565C0', reply: "김영우 : 안녕 얘들아? 석유화학공업 강의 이해됐니...?", showTag: true, imgX: -12, imgY: -14, imgW: 150, imgH: 195 },
-                { id: 'npc_kangbin', name: '박강빈', x: 185, y: 270, approachX: 305, approachY: 130, type: 'photo', photoUrl: () => processedKangbinUrl, clipId: 'headCutoutKangbinUltra', shirtColor: '#2E7D32', reply: "박강빈 : ...", showTag: true, imgX: -2, imgY: 8, imgW: 130, imgH: 155 },
+                { id: 'npc_kangbin', name: '박강빈', x: 185, y: 270, approachX: 305, approachY: 130, type: 'photo', photoUrl: () => processedKangbinUrl, clipId: 'headCutoutKangbinUltra', shirtColor: '#2E7D32', reply: "박강빈 : ...", showTag: true, imgX: -12, imgY: -12, imgW: 150, imgH: 195 },
                 { id: 'npc_generic1', name: '동기1', x: 60, y: 270, type: 'drawn', hairColor: '#E91E63', shirtColor: '#8E24AA', reply: "동기 1 : 야, 바쁜데 모르는 거 물어보지 마라...", showTag: false },
                 { id: 'npc_generic2', name: '동기2', x: 295, y: 270, type: 'drawn', hairColor: '#FF9800', shirtColor: '#F57C00', reply: "동기 2 : 무슨 할 말 있어? 나 공부해야 되니까 귀찮게 하지 마.", showTag: false }
             ];
@@ -664,8 +662,9 @@
                     <clipPath id="headCutoutStrict">
                         <path d="M 65 6 C 42 6, 30 20, 30 48 C 30 68, 42 84, 53 93 L 53 105 L 77 105 L 77 93 C 88 84, 100 68, 100 48 C 100 20, 88 6, 65 6 Z"/>
                     </clipPath>
+                    <!-- 🎯 박강빈 머리 키움 마스크 -->
                     <clipPath id="headCutoutKangbinUltra">
-                        <path d="M 62 14 C 40 14, 30 26, 30 50 C 30 72, 42 88, 52 94 L 52 98 L 72 98 L 72 94 C 82 88, 94 72, 94 50 C 94 26, 84 14, 62 14 Z"/>
+                        <path d="M 62 10 C 38 10, 28 24, 28 52 C 28 76, 40 94, 50 108 L 50 116 L 74 116 L 74 108 C 84 94, 96 76, 96 52 C 96 24, 86 10, 62 10 Z"/>
                     </clipPath>
                     <clipPath id="headCutoutGeunsik">
                         <path d="M 62 10 C 42 10, 30 22, 30 50 C 30 72, 42 90, 48 106 L 48 116 L 76 116 L 76 106 C 82 90, 94 72, 94 50 C 94 22, 82 10, 62 10 Z"/>
@@ -867,6 +866,7 @@
                     </svg>`;
                 }
 
+                /* ---------------- [ 한스빈 🍱 장면 (전체 아래로 내림 & 인물 키움 & 탁자 작게) ] ---------------- */
                 if (sceneIndex === 5) {
                     const renderHansbinCharacter = (name, shirtColor, headClip, photoUrl, imgAttrs, isSpeaking) => {
                         const speakClass = isSpeaking ? 'hansbin-speaking' : '';
@@ -908,71 +908,57 @@
                     return `
                     <svg width="100%" height="100%" viewBox="0 0 400 450" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg">
                         ${defs3D}
-                        <rect x="0" y="0" width="400" height="240" fill="#FFF8E7"/>
-                        <rect x="0" y="240" width="400" height="210" fill="#D7CCC8"/>
-                        <line x1="0" y1="240" x2="400" y2="240" stroke="#8D6E63" stroke-width="5"/>
+                        <rect x="0" y="0" width="400" height="260" fill="#FFF8E7"/>
+                        <rect x="0" y="260" width="400" height="190" fill="#D7CCC8"/>
+                        <line x1="0" y1="260" x2="400" y2="260" stroke="#8D6E63" stroke-width="5"/>
 
-                        <g transform="translate(65, 10)" filter="url(#shadow3D)">
-                            <rect x="0" y="0" width="270" height="42" rx="8" fill="#37474F" stroke="#78909C" stroke-width="3"/>
-                            <text x="135" y="26" fill="#FFF59D" font-size="16" font-weight="900" text-anchor="middle" dominant-baseline="middle">한스빈 메뉴 : 제육볶음&김치찌개</text>
+                        <!-- 메뉴판을 아래로 내려 가려짐 방지 -->
+                        <g transform="translate(65, 22)" filter="url(#shadow3D)">
+                            <rect x="0" y="0" width="270" height="40" rx="8" fill="#37474F" stroke="#78909C" stroke-width="3"/>
+                            <text x="135" y="25" fill="#FFF59D" font-size="15" font-weight="900" text-anchor="middle" dominant-baseline="middle">한스빈 메뉴 : 제육볶음&김치찌개</text>
                         </g>
 
-                        <g transform="translate(10, 112) scale(0.42)">
+                        <!-- 인물 크기를 키우고 탁자에 바짝 붙임 (scale 0.47) -->
+                        <g transform="translate(2, 118) scale(0.47)">
                             ${renderHansbinCharacter("김영우", "#1565C0", "headCutoutStandard", processedYoungwooUrl, {x: -12, y: -14, w: 150, h: 195}, speakingYoungwoo)}
                         </g>
-                        <g transform="translate(82, 100) scale(0.42)">
+                        <g transform="translate(78, 108) scale(0.47)">
                             ${renderHansbinCharacter("박근식", "#3F51B5", "headCutoutGeunsik", processedGeunsikUrl, {x: 12, y: -2, w: 100, h: 125}, speakingGeunsik)}
                         </g>
-                        <g transform="translate(160, 92) scale(0.42)">
+                        <g transform="translate(154, 100) scale(0.47)">
                             ${renderHansbinCharacter("배진울", "#222222", "headCutoutStrict", processedHeadUrl, {x: -5, y: -8, w: 140, h: 210}, speakingJinul)}
                         </g>
-                        <g transform="translate(238, 100) scale(0.42)">
+                        <g transform="translate(230, 108) scale(0.47)">
                             ${renderHansbinCharacter("김찬영", "#D84315", "headCutoutStandard", processedChanyoungUrl, {x: -12, y: -15, w: 150, h: 195}, speakingChanyoung)}
                         </g>
-                        <g transform="translate(310, 112) scale(0.42)">
-                            ${renderHansbinCharacter("박강빈", "#2E7D32", "headCutoutKangbinUltra", processedKangbinUrl, {x: -2, y: 8, w: 130, h: 155}, speakingKangbin)}
+                        <g transform="translate(306, 118) scale(0.47)">
+                            ${renderHansbinCharacter("박강빈", "#2E7D32", "headCutoutKangbinUltra", processedKangbinUrl, {x: -12, y: -12, w: 150, h: 195}, speakingKangbin)}
                         </g>
 
-                        <ellipse cx="200" cy="220" rx="190" ry="72" fill="#795548" stroke="#4E342E" stroke-width="6" filter="url(#shadow3D)"/>
-                        <ellipse cx="200" cy="215" rx="176" ry="62" fill="#A1887F"/>
-                        <ellipse cx="200" cy="215" rx="164" ry="54" fill="#D7CCC8" opacity="0.3"/>
+                        <!-- 탁자를 더 작게 (rx 150, ry 48) 아래로 내림 -->
+                        <ellipse cx="200" cy="235" rx="150" ry="48" fill="#795548" stroke="#4E342E" stroke-width="5" filter="url(#shadow3D)"/>
+                        <ellipse cx="200" cy="232" rx="138" ry="40" fill="#A1887F"/>
+                        <ellipse cx="200" cy="232" rx="128" ry="34" fill="#D7CCC8" opacity="0.3"/>
 
-                        <ellipse cx="200" cy="200" rx="28" ry="16" fill="#37474F" stroke="#263238" stroke-width="3"/>
-                        <ellipse cx="200" cy="199" rx="22" ry="12" fill="#D84315"/>
-                        <circle cx="192" cy="197" r="4" fill="#4CAF50"/>
-                        <circle cx="205" cy="200" r="5" fill="#FFF9C4"/>
+                        <!-- 음식도 탁자에 맞게 아래로 배치 -->
+                        <ellipse cx="200" cy="223" rx="24" ry="13" fill="#37474F" stroke="#263238" stroke-width="2.5"/>
+                        <ellipse cx="200" cy="222" rx="19" ry="10" fill="#D84315"/>
+                        <circle cx="193" cy="220" r="3" fill="#4CAF50"/>
+                        <circle cx="205" cy="222" r="4" fill="#FFF9C4"/>
                         <g class="steam-effect-1">
-                            <path d="M 190 187 Q 192 177 188 171" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                            <path d="M 210 188 Q 212 180 208 173" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                            <path d="M 193 211 Q 195 203 192 197" stroke="#FFF" stroke-width="2" stroke-linecap="round" fill="none"/>
+                            <path d="M 207 212 Q 209 205 205 199" stroke="#FFF" stroke-width="2" stroke-linecap="round" fill="none"/>
                         </g>
 
-                        <ellipse cx="125" cy="190" rx="28" ry="16" fill="#FFFFFF" stroke="#CFD8DC" stroke-width="2"/>
-                        <path d="M 108 188 Q 125 180 142 188 Q 125 197 108 198 Z" fill="#E64A19"/>
+                        <ellipse cx="132" cy="216" rx="22" ry="12" fill="#FFFFFF" stroke="#CFD8DC" stroke-width="2"/>
+                        <path d="M 119 215 Q 132 208 145 215 Q 132 221 119 222 Z" fill="#E64A19"/>
 
-                        <ellipse cx="275" cy="190" rx="28" ry="16" fill="#FFFFFF" stroke="#CFD8DC" stroke-width="2"/>
-                        <ellipse cx="275" cy="189" rx="22" ry="12" fill="#8D6E63"/>
-
-                        <g transform="translate(60, 210)">
-                            <rect x="0" y="0" width="36" height="20" rx="4" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="1.5"/>
-                            <circle cx="8" cy="6" r="3" fill="#FFFFFF"/>
-                            <circle cx="22" cy="6" r="3" fill="#FFE0B2"/>
-                        </g>
-
-                        <g transform="translate(304, 210)">
-                            <rect x="0" y="0" width="36" height="20" rx="4" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="1.5"/>
-                            <circle cx="8" cy="6" r="3" fill="#FFFFFF"/>
-                            <circle cx="22" cy="6" r="3" fill="#FFE0B2"/>
-                        </g>
-
-                        <rect x="225" y="215" width="10" height="15" rx="2" fill="#E53935"/>
-                        <rect x="238" y="213" width="10" height="15" rx="2" fill="#43A047"/>
-
-                        <text x="35" y="145" font-size="20">😋</text>
-                        <text x="345" y="145" font-size="20">✨</text>
+                        <ellipse cx="268" cy="216" rx="22" ry="12" fill="#FFFFFF" stroke="#CFD8DC" stroke-width="2"/>
+                        <ellipse cx="268" cy="215" rx="17" ry="9" fill="#8D6E63"/>
                     </svg>`;
                 }
 
-                /* ---------------- [ 카페 스터디 장면 ] ---------------- */
+                /* ---------------- [ 카페 스터디 ☕ 장면 (새 배경 반영, 이모지 제거, 인물 크게 & 탁자 밀착) ] ---------------- */
                 if (sceneIndex === 6) {
                     const renderCafeCharacter = (name, shirtColor, headClip, photoUrl, imgAttrs) => {
                         const ix = imgAttrs.x;
@@ -1004,21 +990,15 @@
                         return `
                         <!-- 책 -->
                         <g transform="translate(${bookX}, ${bookY})" filter="url(#shadow3D)">
-                            <rect x="0" y="0" width="38" height="24" rx="2" fill="#37474F" stroke="#263238" stroke-width="2"/>
-                            <rect x="3" y="3" width="32" height="18" fill="#FFFFFF"/>
-                            <line x1="19" y1="3" x2="19" y2="21" stroke="#B0BEC5" stroke-width="1.5"/>
-                            <line x1="6" y1="7" x2="15" y2="7" stroke="#90A4AE" stroke-width="1.5"/>
-                            <line x1="6" y1="11" x2="15" y2="11" stroke="#90A4AE" stroke-width="1.5"/>
-                            <line x1="23" y1="7" x2="32" y2="7" stroke="#90A4AE" stroke-width="1.5"/>
-                            <line x1="23" y1="11" x2="30" y2="11" stroke="#90A4AE" stroke-width="1.5"/>
+                            <rect x="0" y="0" width="34" height="22" rx="2" fill="#37474F" stroke="#263238" stroke-width="2"/>
+                            <rect x="3" y="3" width="28" height="16" fill="#FFFFFF"/>
+                            <line x1="17" y1="3" x2="17" y2="19" stroke="#B0BEC5" stroke-width="1.5"/>
                         </g>
                         <!-- 커피잔 -->
                         <g transform="translate(${coffeeX}, ${coffeeY})" filter="url(#shadow3D)">
-                            <ellipse cx="8" cy="16" rx="7" ry="3" fill="#000" opacity="0.3"/>
-                            <path d="M 3 4 L 13 4 L 12 15 C 12 17, 4 17, 4 15 Z" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="1"/>
-                            <path d="M 12 6 C 15 6, 15 12, 12 13" stroke="#B0BEC5" stroke-width="1.5" fill="none"/>
-                            <ellipse cx="8" cy="4" rx="5" ry="2" fill="#6D4C41"/>
-                            <path d="M 6 1 Q 7 0, 8 1" stroke="#FFF" stroke-width="1" stroke-linecap="round" fill="none"/>
+                            <ellipse cx="7" cy="14" rx="6" ry="2.5" fill="#000" opacity="0.3"/>
+                            <path d="M 3 3 L 11 3 L 10 13 C 10 15, 4 15, 4 13 Z" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="1"/>
+                            <ellipse cx="7" cy="3" rx="4" ry="1.5" fill="#6D4C41"/>
                         </g>`;
                     };
 
@@ -1026,40 +1006,41 @@
                     <svg width="100%" height="100%" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
                         ${defs3D}
                         <defs>
+                            <!-- 🎯 사용자가 제공한 새로운 카페 배경 이미지 (카페배경.jpg) 비율 맞춤 반영 -->
                             <pattern id="cafeBgPattern" width="400" height="520" patternUnits="userSpaceOnUse">
-                                <image href="카페 배경_3.jpg" width="400" height="520" preserveAspectRatio="xMidYMid slice"/>
+                                <image href="카페배경.jpg" width="400" height="520" preserveAspectRatio="xMidYMid slice"/>
                             </pattern>
                         </defs>
                         <rect x="0" y="0" width="400" height="520" fill="url(#cafeBgPattern)"/>
                         <rect x="0" y="0" width="400" height="520" fill="rgba(0, 0, 0, 0.35)"/>
 
-                        <g transform="translate(18, 115) scale(0.52)">
+                        <!-- 전체적으로 아래로 내리고 인물을 더 키움 (scale 0.55), 탁자에 딱 붙임 -->
+                        <g transform="translate(10, 130) scale(0.55)">
                             ${renderCafeCharacter("김영우", "#1565C0", "headCutoutStandard", processedYoungwooUrl, {x: -12, y: -14, w: 150, h: 195})}
                         </g>
-                        <g transform="translate(88, 105) scale(0.52)">
+                        <g transform="translate(82, 120) scale(0.55)">
                             ${renderCafeCharacter("박근식", "#3F51B5", "headCutoutGeunsik", processedGeunsikUrl, {x: 12, y: -2, w: 100, h: 125})}
                         </g>
-                        <g transform="translate(160, 97) scale(0.52)">
+                        <g transform="translate(154, 112) scale(0.55)">
                             ${renderCafeCharacter("배진울", "#222222", "headCutoutStrict", processedHeadUrl, {x: -5, y: -8, w: 140, h: 210})}
                         </g>
-                        <g transform="translate(232, 105) scale(0.52)">
+                        <g transform="translate(226, 120) scale(0.55)">
                             ${renderCafeCharacter("김찬영", "#D84315", "headCutoutStandard", processedChanyoungUrl, {x: -12, y: -15, w: 150, h: 195})}
                         </g>
-                        <g transform="translate(302, 115) scale(0.52)">
-                            ${renderCafeCharacter("박강빈", "#2E7D32", "headCutoutKangbinUltra", processedKangbinUrl, {x: -2, y: 8, w: 130, h: 155})}
+                        <g transform="translate(298, 130) scale(0.55)">
+                            ${renderCafeCharacter("박강빈", "#2E7D32", "headCutoutKangbinUltra", processedKangbinUrl, {x: -12, y: -12, w: 150, h: 195})}
                         </g>
 
-                        <ellipse cx="200" cy="235" rx="160" ry="55" fill="#3E2723" stroke="#271C19" stroke-width="4" filter="url(#shadow3D)"/>
-                        <ellipse cx="200" cy="231" rx="148" ry="46" fill="#5D4037"/>
+                        <!-- 중앙 원형 탁자를 더 작고 예쁘게 배치 -->
+                        <ellipse cx="200" cy="245" rx="145" ry="46" fill="#3E2723" stroke="#271C19" stroke-width="4" filter="url(#shadow3D)"/>
+                        <ellipse cx="200" cy="241" rx="134" ry="38" fill="#5D4037"/>
 
-                        ${renderStudyItem(48, 215, 88, 219)}
-                        ${renderStudyItem(116, 222, 156, 225)}
-                        ${renderStudyItem(181, 219, 221, 223)}
-                        ${renderStudyItem(246, 222, 286, 225)}
-                        ${renderStudyItem(314, 215, 354, 219)}
-
-                        <text x="35" y="140" font-size="20">☕</text>
-                        <text x="345" y="140" font-size="20">📚</text>
+                        <!-- 각자 앞에 놓인 책과 커피 (머리 위 이모지 제거 완료) -->
+                        ${renderStudyItem(46, 226, 82, 230)}
+                        ${renderStudyItem(112, 232, 148, 235)}
+                        ${renderStudyItem(178, 230, 214, 233)}
+                        ${renderStudyItem(244, 232, 280, 235)}
+                        ${renderStudyItem(310, 226, 346, 230)}
                     </svg>`;
                 }
 
