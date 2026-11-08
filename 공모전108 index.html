@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>모여봐요 A+의 숲</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            /* PC 등 넓은 화면에서 볼 때 양옆 여백을 예쁜 숲 배경색으로 채움 */
+            background-color: #1b5e20;
+            font-family: 'Jua', 'Gamja Flower', '맑은 고딕', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ---------------- [ 스마트폰 비율 프레임 컨테이너 ] ---------------- */
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 430px; /* 스마트폰 최대 폭 제한 */
+            height: 100%;
+            max-height: 932px; /* 스마트폰 최대 높이 제한 (아이폰 프로맥스 비율 기준) */
+            display: flex;
+            flex-direction: column;
+            background-color: #e8f5e9;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-left: 3px solid rgba(255, 255, 255, 0.15);
+            border-right: 3px solid rgba(255, 255, 255, 0.15);
+        }
+
+        @media (min-width: 431px) {
+            #game-container {
+                height: 92vh;
+                border-radius: 36px; /* PC에서는 스마트폰처럼 모서리를 둥글게 처리 */
+                border: 8px solid #33691e;
+            }
+        }
+
+        /* ---------------- [ 세로 타이틀 화면 ] ---------------- */
+        #title-screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; 
+            height: 100%;
+            background-color: #388e3c;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url('image_28563c.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            padding: 20px 15px;
+        }
+
+        .ac-logo-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.4));
+        }
+
+        .ac-badge-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: -10px;
+            z-index: 2;
+        }
+
+        .ac-badge {
+            width: clamp(38px, 8vw, 48px);
+            height: clamp(38px, 8vw, 48px);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(20px, 4.5vw, 24px);
+            font-weight: 900;
+            color: white;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .b-red { background-color: #ff5252; transform: rotate(-5deg); }
+        .b-yellow { background-color: #ffb300; transform: rotate(3deg); }
+        .b-green { background-color: #66bb6a; transform: rotate(-3deg); }
+        .b-blue { background-color: #42a5f5; transform: rotate(4deg); }
+
+        .ac-main-title {
+            background: #fff8e1;
+            padding: 10px clamp(18px, 5vw, 32px);
+            border-radius: 40px;
+            border: 5px solid #558b2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: inset 0 -4px 0 #d7ccc8;
+            transform: rotate(-1.5deg);
+        }
+
+        .ac-title-text {
+            font-size: clamp(34px, 8.5vw, 52px);
+            font-weight: 900;
+            color: #f57f17;
+            text-shadow: 
+                -2px -2px 0 #ffffff,  
+                 2px -2px 0 #ffffff,
+                -2px  2px 0 #ffffff,
+                 2px  2px 0 #ffffff,
+                 3px  4px 0 #33691e;
+            letter-spacing: 1px;
+        }
+
+        .ac-leaf-icon {
+            width: clamp(34px, 7vw, 45px);
+            height: clamp(34px, 7vw, 45px);
+            animation: leafWiggle 2s infinite ease-in-out;
+        }
+
+        @keyframes leafWiggle {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(15deg); }
+        }
+
+        .game-guide-card {
+            background: rgba(255, 255, 255, 0.93);
+            border: 4px solid #7cb342;
+            border-radius: 20px;
+            padding: 12px clamp(14px, 3.5vw, 24px);
+            margin-bottom: 25px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+            width: 92%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .game-guide-title {
+            font-size: clamp(16px, 3.8vw, 19px);
+            font-weight: bold;
+            color: #33691e;
+            margin-bottom: 4px;
+        }
+
+        .game-guide-desc {
+            font-size: clamp(13px, 3.1vw, 15px);
+            line-height: 1.45;
+            color: #333333;
+            font-weight: bold;
+            word-break: keep-all;
+        }
+
+        .game-guide-desc b {
+            color: #e65100;
+        }
+
+        .touch-text {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            animation: blink 1.5s infinite;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 32px;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ---------------- [ 상단 헤더 ] ---------------- */
+        .header-bar {
+            height: clamp(48px, 7dvh, 55px);
+            background-color: #689f38;
+            color: white;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid #33691e;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .status-group {
+            display: flex;
+            gap: 12px;
+            font-size: clamp(15px, 3.8vw, 19px);
+            font-weight: bold;
+        }
+
+        .status-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px 12px;
+            border-radius: 15px;
+        }
+
+        .bgm-btn {
+            background-color: #ffb74d;
+            border: 2px solid #f57c00;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: clamp(13px, 3.2vw, 16px);
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* ---------------- [ 메인 화면 & 세로 3인칭 맵 ] ---------------- */
+        .main-screen {
+            flex: 1;
+            background: linear-gradient(to bottom, #c8e6c9, #aed581);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .scene-location-badge {
+            position: absolute;
+            top: 12px;
+            left: 14px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #33691e;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: clamp(14px, 3.5vw, 17px);
+            font-weight: bold;
+            border: 2px solid #8bc34a;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 5;
+        }
+
+        #mission-banner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(46, 125, 50, 0.96);
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 22px;
+            font-size: clamp(13px, 3.5vw, 16px);
+            font-weight: bold;
+            border: 3px solid #fff59d;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+            z-index: 100;
+            display: none;
+            width: max-content;
+            max-width: 90%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .graphic-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        @keyframes dramaticHairFall {
+            0% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 1; }
+            30% { transform: translateY(12px) rotate(-18deg) scale(1.15); opacity: 1; }
+            65% { transform: translateY(32px) rotate(22deg) scale(1.05); opacity: 0.85; }
+            100% { transform: translateY(58px) rotate(45deg) scale(0.9); opacity: 0; }
+        }
+        .falling-hair-1 { animation: dramaticHairFall 1.3s infinite ease-in-out; }
+        .falling-hair-2 { animation: dramaticHairFall 1.3s infinite ease-in-out 0.4s; }
+        .falling-hair-3 { animation: dramaticHairFall 1.3s infinite ease-in-out 0.8s; }
+
+        @keyframes jump3TimesClean {
+            0%, 100% { transform: translateY(0); }
+            16.6%, 50%, 83.3% { transform: translateY(-34px); }
+            33.3%, 66.6% { transform: translateY(0); }
+        }
+        .all-jumping-body {
+            animation: jump3TimesClean 0.85s ease-in-out 1 forwards !important;
+        }
+
+        @keyframes hansbinTalkBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.02) rotate(-1.5deg); }
+        }
+        .hansbin-speaking {
+            animation: hansbinTalkBounce 0.45s infinite ease-in-out;
+            transform-origin: bottom center;
+        }
+
+        @keyframes walkApproachYoungwoo {
+            0% { transform: translate(135px, 270px) scale(0.48); }
+            30% { transform: translate(165px, 230px) scale(0.48) rotate(-4deg); }
+            60% { transform: translate(210px, 180px) scale(0.48) rotate(4deg); }
+            100% { transform: translate(255px, 130px) scale(0.48) rotate(0deg); }
+        }
+        @keyframes walkApproachKangbin {
+            0% { transform: translate(185px, 270px) scale(0.48); }
+            30% { transform: translate(215px, 230px) scale(0.48) rotate(4deg); }
+            60% { transform: translate(260px, 180px) scale(0.48) rotate(-4deg); }
+            100% { transform: translate(305px, 130px) scale(0.48) rotate(0deg); }
+        }
+
+        .youngwoo-walking {
+            animation: walkApproachYoungwoo 1s cubic-bezier(0.25, 1, 0.5, 1) 1 forwards !important;
+        }
+        .kangbin-walking {
+            animation: walkApproachKangbin 1s cubic-bezier(0.25, 1, 0.5, 1) 1 forwards !important;
+        }
+
+        @keyframes steamRise {
+            0% { transform: translateY(0) scaleX(1); opacity: 0.8; }
+            50% { transform: translateY(-8px) scaleX(1.25); opacity: 0.4; }
+            100% { transform: translateY(-16px) scaleX(1.4); opacity: 0; }
+        }
+        .steam-effect-1 { animation: steamRise 1.5s infinite ease-out; }
+
+        .bottom-panel {
+            height: clamp(160px, 24dvh, 210px);
+            background: #ffffff;
+            border-top: 5px solid #8bc34a;
+            padding: 10px clamp(10px, 2.5vw, 18px);
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 2.5vw, 16px);
+            flex-shrink: 0;
+            cursor: pointer;
+            z-index: 200;
+        }
+
+        #joystick-wrapper {
+            width: clamp(95px, 24vw, 120px);
+            height: clamp(95px, 24vw, 120px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        #joystick-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: rgba(139, 195, 74, 0.15);
+            border: 3px solid #7cb342;
+            border-radius: 50%;
+            touch-action: none;
+            display: none;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        #joystick-thumb {
+            position: absolute;
+            top: calc(50% - clamp(18px, 4.5vw, 23px));
+            left: calc(50% - clamp(18px, 4.5vw, 23px));
+            width: clamp(36px, 9vw, 46px);
+            height: clamp(36px, 9vw, 46px);
+            background: #8bc34a;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+            pointer-events: none;
+            transition: transform 0.05s ease-out;
+        }
+
+        .dialogue-box {
+            flex: 1;
+            height: 100%;
+            background: #f1f8e9;
+            border: 3px solid #c5e1a5;
+            border-radius: 18px;
+            padding: clamp(10px, 2vh, 15px) clamp(12px, 3vw, 20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+            min-width: 0;
+        }
+
+        .dialogue-text {
+            font-size: clamp(15px, 3.8vw, 19px);
+            line-height: 1.5;
+            color: #2e7d32;
+            font-weight: bold;
+            overflow-y: auto;
+            word-break: keep-all;
+        }
+
+        .tap-indicator {
+            align-self: flex-end;
+            font-size: clamp(12px, 3vw, 14px);
+            color: #558b2f;
+            font-weight: bold;
+            animation: pulseTap 1.2s infinite ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        @keyframes pulseTap {
+            0%, 100% { opacity: 1; transform: translateY(0); }
+            50% { opacity: 0.4; transform: translateY(3px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="mission-banner">🎯 미션: 박근식을 찾아가서 대화를 나누세요!</div>
+
+        <div id="title-screen" onclick="startGame()">
+            <div class="ac-logo-box">
+                <div class="ac-badge-row">
+                    <div class="ac-badge b-red">모</div>
+                    <div class="ac-badge b-yellow">여</div>
+                    <div class="ac-badge b-green">봐</div>
+                    <div class="ac-badge b-blue">요</div>
+                </div>
+                <div class="ac-main-title">
+                    <span class="ac-title-text">A+의 숲</span>
+                    <svg class="ac-leaf-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 10 C80 10 90 40 90 70 C90 85 75 90 60 90 C30 90 10 60 10 30 C10 15 25 10 50 10 Z" fill="#8BC34A" stroke="#33691E" stroke-width="5"/>
+                        <path d="M25 75 Q 50 50 80 20" stroke="#33691E" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M45 55 Q 60 65 70 60" stroke="#33691E" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="game-guide-card">
+                <div class="game-guide-title">🎓 [ 게임 목표 ]</div>
+                <div class="game-guide-desc">동기들과 소통하며 <b>우정</b>과 <b>지식</b>을 채우고,<br>최종 <b>A+학점</b>을 받아보세요!</div>
+            </div>
+
+            <div class="touch-text">화면을 터치하여 시작하기</div>
+        </div>
+
+        <div class="header-bar">
+            <div class="status-group">
+                <div class="status-item">🧠 지식: <span id="stat-knowledge">0</span></div>
+                <div class="status-item">🤝 우정: <span id="stat-friendship">0</span></div>
+            </div>
+            <button class="bgm-btn" id="bgm-toggle" onclick="toggleBGM(event)">🎵 BGM 켜기</button>
+        </div>
+
+        <div class="main-screen" id="main-screen">
+            <div class="scene-location-badge" id="scene-location">학교 정문</div>
+            <div class="graphic-wrapper" id="graphic-wrapper" onclick="handleScreenClick()"></div>
+        </div>
+
+        <div class="bottom-panel" onclick="handleScreenClick()">
+            <div id="joystick-wrapper">
+                <div id="joystick-container">
+                    <div id="joystick-thumb"></div>
+                </div>
+            </div>
+
+            <div class="dialogue-box">
+                <div class="dialogue-text" id="dialogue-text"></div>
+                <div class="tap-indicator" id="tap-indicator">화면을 터치하세요 ▼</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            let bgmPlaying = false;
+            let isStarted = false;
+            let gameData = { knowledge: 0, friendship: 0, currentScene: 0 };
+            let hasMovedInWalkMode = false;
+
+            let playerPos = { x: 50, y: 450 };
+            let joystickVec = { x: 0, y: 0 };
+            let isJoystickActive = false;
+            const moveSpeed = 3.8;
+            let keysPressed = {};
+            
+            let currentNearbyNpc = null;
+            let dialogueState = 'IDLE';
+
+            let audioCtx = null;
+            let musicInterval = null;
+            let stepCounter = 0;
+
+            function initHealingMusic() {
+                if (audioCtx) return;
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+
+            function playDynamicMelody() {
+                if (!audioCtx || !bgmPlaying) return;
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const chords = [
+                    [523.25, 659.25, 783.99], 
+                    [587.33, 698.46, 880.00], 
+                    [659.25, 830.61, 987.77], 
+                    [698.46, 880.00, 1046.50] 
+                ];
+
+                const currentChord = chords[Math.floor(stepCounter / 8) % chords.length];
+                const note = currentChord[stepCounter % currentChord.length];
+                const isClimax = (stepCounter % 32 >= 24);
+                const playFreq = isClimax ? note * 1.5 : note;
+
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                osc.type = isClimax ? 'sine' : 'triangle';
+                osc.frequency.setValueAtTime(playFreq, audioCtx.currentTime);
+
+                const volume = isClimax ? 0.14 : 0.08;
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.06);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (isClimax ? 0.6 : 0.35));
+
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.65);
+
+                stepCounter++;
+            }
+
+            function startDynamicHealingBGM() {
+                initHealingMusic();
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                bgmPlaying = true;
+                const btn = document.getElementById('bgm-toggle');
+                if(btn) btn.innerText = "🔇 BGM 끄기";
+
+                if (!musicInterval) {
+                    stepCounter = 0;
+                    playDynamicMelody();
+                    musicInterval = setInterval(() => {
+                        if (bgmPlaying) playDynamicMelody();
+                    }, 180);
+                }
+            }
+
+            function stopDynamicHealingBGM() {
+                bgmPlaying = false;
+                const btn = document.getElementById('bgm-toggle');
+                if(btn) btn.innerText = "🎵 BGM 켜기";
+                if (musicInterval) {
+                    clearInterval(musicInterval);
+                    musicInterval = null;
+                }
+            }
+
+            window.toggleBGM = function(e) {
+                if (e) e.stopPropagation();
+                if (bgmPlaying) {
+                    stopDynamicHealingBGM();
+                } else {
+                    startDynamicHealingBGM();
+                }
+            };
+
+            let processedHeadUrl = '증사_2.jpg';
+            let processedGeunsikUrl = '박근식.jpg';
+            let processedYoungwooUrl = '김영우.jpg';
+            let processedChanyoungUrl = '김찬영.jpg';
+            let processedKangbinUrl = '박강빈.jpg';
+
+            const classroomNpcs = [
+                { id: 'npc_geunsik', name: '박근식', x: 155, y: 130, type: 'photo', photoUrl: () => processedGeunsikUrl, clipId: 'headCutoutGeunsik', shirtColor: '#3F51B5', isTarget: true, showTag: true, imgX: 12, imgY: -2, imgW: 100, imgH: 125 },
+                { id: 'npc_chanyoung', name: '김찬영', x: 205, y: 130, type: 'photo', photoUrl: () => processedChanyoungUrl, clipId: 'headCutoutStandard', shirtColor: '#D84315', reply: "김찬영 : 나 근식이이랑 같이 석유화학공업 수업 복습 중이었어!", showTag: true, imgX: -12, imgY: -15, imgW: 150, imgH: 195 },
+                { id: 'npc_youngwoo', name: '김영우', x: 135, y: 270, approachX: 255, approachY: 130, type: 'photo', photoUrl: () => processedYoungwooUrl, clipId: 'headCutoutStandard', shirtColor: '#1565C0', reply: "김영우 : 안녕 얘들아? 석유화학공업 강의 이해됐니...?", showTag: true, imgX: -12, imgY: -14, imgW: 150, imgH: 195 },
+                { id: 'npc_kangbin', name: '박강빈', x: 185, y: 270, approachX: 305, approachY: 130, type: 'photo', photoUrl: () => processedKangbinUrl, clipId: 'headCutoutKangbinUltra', shirtColor: '#2E7D32', reply: "박강빈 : ...", showTag: true, imgX: -2, imgY: 8, imgW: 130, imgH: 155 },
+                { id: 'npc_generic1', name: '동기1', x: 60, y: 270, type: 'drawn', hairColor: '#E91E63', shirtColor: '#8E24AA', reply: "동기 1 : 야, 바쁜데 모르는 거 물어보지 마라...", showTag: false },
+                { id: 'npc_generic2', name: '동기2', x: 295, y: 270, type: 'drawn', hairColor: '#FF9800', shirtColor: '#F57C00', reply: "동기 2 : 무슨 할 말 있어? 나 공부해야 되니까 귀찮게 하지 마.", showTag: false }
+            ];
+
+            const scenarios = [
+                { location: "학교 정문", text: "입학 전에는 매일 놀기만 하고 공부는 하나도 안 했었는데... 이제 정말 열심히 해보자!!", isWalkMode: false },
+                { location: "전공 강의실", text: "아는 친구들이 아무도 없다... 그래도 나만 열심히 하면 되겠지?", isWalkMode: false },
+                { location: "전공 강의실", text: "다른 건 다 괜찮은데 [석유화학공업] 과목이 너무 어렵다... 머리카락이 빠질 거 같아!", isWalkMode: false },
+                { location: "전공 강의실", text: "혼자 헤매기보다는 옆 자리에 있는 친구에게 먼저 다가가서 물어봐야겠다!", isWalkMode: false },
+                { location: "전공 강의실 (자유 탐색)", text: "박근식을 찾아가서 대화를 나누세요!", isWalkMode: true },
+                { location: "한스빈 🍱", text: "다 함께 맛있는 학식을 먹으며 수다를 떠니 훨씬 친해졌어!", isWalkMode: false, isHansbinTalk: true },
+                { location: "카페 스터디 ☕", text: "친구들과 분위기 좋은 카페에 모여 각자 책을 펼치고 본격적으로 공부를 시작했다!", isWalkMode: false, isCafeStudy: true },
+                { location: "종강 발표장", text: "함께 서로 부족한 점을 채워주며 노력한 결과, 우리 팀 모두 훌륭한 성적을 거두었다!", isWalkMode: false }
+            ];
+
+            let hansbinTalkStep = 0;
+
+            function processPhotoAlpha(filename, setter) {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.src = filename;
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const data = imgData.data;
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i], g = data[i + 1], b = data[i + 2];
+                            if (r > 140 && g > 140 && b > 140) {
+                                const maxC = Math.max(r, g, b), minC = Math.min(r, g, b);
+                                if (maxC - minC < 32) data[i + 3] = 0;
+                            }
+                        }
+                        ctx.putImageData(imgData, 0, 0);
+                        setter(canvas.toDataURL('image/png'));
+                        renderScene();
+                    } catch (e) {
+                        setter(filename);
+                        renderScene();
+                    }
+                };
+                img.onerror = function() { setter(filename); };
+            }
+
+            processPhotoAlpha('증사_2.jpg', url => processedHeadUrl = url);
+            processPhotoAlpha('박근식.jpg', url => processedGeunsikUrl = url);
+            processPhotoAlpha('김영우.jpg', url => processedYoungwooUrl = url);
+            processPhotoAlpha('김찬영.jpg', url => processedChanyoungUrl = url);
+            processPhotoAlpha('박강빈.jpg', url => processedKangbinUrl = url);
+
+            function getSceneGraphic(sceneIndex) {
+                const defs3D = `
+                <defs>
+                    <linearGradient id="shirtSD" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#2D2D2D"/>
+                        <stop offset="100%" stop-color="#151515"/>
+                    </linearGradient>
+                    <filter id="shadow3D" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="5" stdDeviation="3.5" flood-opacity="0.3"/>
+                    </filter>
+                    <clipPath id="headCutoutStrict">
+                        <path d="M 65 6 C 42 6, 30 20, 30 48 C 30 68, 42 84, 53 93 L 53 105 L 77 105 L 77 93 C 88 84, 100 68, 100 48 C 100 20, 88 6, 65 6 Z"/>
+                    </clipPath>
+                    <clipPath id="headCutoutKangbinUltra">
+                        <path d="M 62 14 C 40 14, 30 26, 30 50 C 30 72, 42 88, 52 94 L 52 98 L 72 98 L 72 94 C 82 88, 94 72, 94 50 C 94 26, 84 14, 62 14 Z"/>
+                    </clipPath>
+                    <clipPath id="headCutoutGeunsik">
+                        <path d="M 62 10 C 42 10, 30 22, 30 50 C 30 72, 42 90, 48 106 L 48 116 L 76 116 L 76 106 C 82 90, 94 72, 94 50 C 94 22, 82 10, 62 10 Z"/>
+                    </clipPath>
+                    <clipPath id="headCutoutStandard">
+                        <path d="M 62 10 C 38 10, 28 24, 28 52 C 28 76, 40 94, 50 108 L 50 116 L 74 116 L 74 108 C 84 94, 96 76, 96 52 C 96 24, 86 10, 62 10 Z"/>
+                    </clipPath>
+                </defs>`;
+
+                if (sceneIndex === 0) {
+                    return `
+                    <svg width="100%" height="100%" viewBox="0 0 240 320" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        ${defs3D}
+                        <ellipse cx="120" cy="285" rx="65" ry="14" fill="#000000" opacity="0.3"/>
+                        <g filter="url(#shadow3D)" transform="translate(55, 30)">
+                            <path d="M 15 95 Q 65 84 115 95 L 123 190 Q 65 200 7 190 Z" fill="url(#shirtSD)"/>
+                            <rect x="36" y="190" width="22" height="32" rx="6" fill="#263238"/>
+                            <rect x="62" y="190" width="22" height="32" rx="6" fill="#263238"/>
+                            <ellipse cx="47" cy="222" rx="14" ry="7" fill="#D84315"/>
+                            <ellipse cx="73" cy="222" rx="14" ry="7" fill="#D84315"/>
+                            <rect x="2" y="95" width="16" height="45" rx="8" fill="#2D2D2D" transform="rotate(14 10 95)"/>
+                            <rect x="112" y="95" width="16" height="45" rx="8" fill="#2D2D2D" transform="rotate(-14 120 95)"/>
+                            <circle cx="5" cy="140" r="7" fill="#FFCC80"/>
+                            <circle cx="125" cy="140" r="7" fill="#FFCC80"/>
+                            <g clip-path="url(#headCutoutStrict)">
+                                <image href="${processedHeadUrl}" xlink:href="증사.jpg" x="-5" y="-8" width="140" height="210" preserveAspectRatio="xMidYMin slice"/>
+                            </g>
+                        </g>
+                    </svg>`;
+                } 
+
+                if (sceneIndex === 4) {
+                    let npcsGraphic = '';
+                    const isFriendsApproached = (
+                        dialogueState === 'GEUNSIK_4' || 
+                        dialogueState === 'APPROACH_TALK_1' || 
+                        dialogueState === 'APPROACH_TALK_2' || 
+                        dialogueState === 'APPROACH_TALK_3' || 
+                        dialogueState === 'ALL_TOGETHER' ||
+                        dialogueState === 'GEUNSIK_END'
+                    );
+
+                    const classroomWindows = `
+                    <g transform="translate(14, 18)" filter="url(#shadow3D)">
+                        <rect x="0" y="0" width="55" height="95" rx="4" fill="#87CEEB" stroke="#4E342E" stroke-width="4"/>
+                        <rect x="4" y="5" width="21" height="40" fill="#B0E0E6"/>
+                        <rect x="29" y="5" width="21" height="40" fill="#B0E0E6"/>
+                        <rect x="4" y="49" width="21" height="40" fill="#B0E0E6"/>
+                        <rect x="29" y="49" width="21" height="40" fill="#B0E0E6"/>
+                        <path d="M 0 0 L 55 95 L 15 95 Z" fill="#FFF8E1" opacity="0.35"/>
+                        <circle cx="14" cy="18" r="8" fill="#FFF" opacity="0.6"/>
+                    </g>
+                    <g transform="translate(331, 18)" filter="url(#shadow3D)">
+                        <rect x="0" y="0" width="55" height="95" rx="4" fill="#87CEEB" stroke="#4E342E" stroke-width="4"/>
+                        <rect x="4" y="5" width="21" height="40" fill="#B0E0E6"/>
+                        <rect x="29" y="5" width="21" height="40" fill="#B0E0E6"/>
+                        <rect x="4" y="49" width="21" height="40" fill="#B0E0E6"/>
+                        <rect x="29" y="49" width="21" height="40" fill="#B0E0E6"/>
+                        <path d="M 0 0 L 55 95 L 15 95 Z" fill="#FFF8E1" opacity="0.35"/>
+                        <circle cx="14" cy="18" r="8" fill="#FFF" opacity="0.6"/>
+                    </g>`;
+
+                    const backDesksPersistent = `
+                    <g transform="translate(135, 270) scale(0.48)" filter="url(#shadow3D)">
+                        <rect x="0" y="115" width="125" height="20" fill="#8D6E63" rx="4" stroke="#4E342E" stroke-width="2"/>
+                        <rect x="12" y="135" width="10" height="30" fill="#5D4037"/>
+                        <rect x="100" y="135" width="10" height="30" fill="#5D4037"/>
+                    </g>
+                    <g transform="translate(185, 270) scale(0.48)" filter="url(#shadow3D)">
+                        <rect x="0" y="115" width="125" height="20" fill="#8D6E63" rx="4" stroke="#4E342E" stroke-width="2"/>
+                        <rect x="12" y="135" width="10" height="30" fill="#5D4037"/>
+                        <rect x="100" y="135" width="10" height="30" fill="#5D4037"/>
+                    </g>`;
+
+                    classroomNpcs.forEach(npc => {
+                        let posX = npc.x;
+                        let posY = npc.y;
+                        const isApproachingNpc = (isFriendsApproached && npc.approachX !== undefined);
+                        let walkClass = '';
+                        let innerJumpClass = '';
+
+                        const isMainGroup = (npc.id === 'npc_geunsik' || npc.id === 'npc_chanyoung' || npc.id === 'npc_youngwoo' || npc.id === 'npc_kangbin');
+                        if (dialogueState === 'ALL_TOGETHER' && isMainGroup) {
+                            innerJumpClass = 'all-jumping-body';
+                        }
+
+                        if (isApproachingNpc) {
+                            posX = npc.approachX;
+                            posY = npc.approachY;
+                            if (dialogueState === 'GEUNSIK_4') {
+                                if (npc.id === 'npc_youngwoo') walkClass = 'youngwoo-walking';
+                                if (npc.id === 'npc_kangbin') walkClass = 'kangbin-walking';
+                            }
+                        }
+
+                        let headGraphic = '';
+                        if (npc.type === 'photo') {
+                            const photoSrc = npc.photoUrl();
+                            const ix = npc.imgX !== undefined ? npc.imgX : 10;
+                            const iy = npc.imgY !== undefined ? npc.imgY : 0;
+                            const iw = npc.imgW || 104;
+                            const ih = npc.imgH || 125;
+                            headGraphic = `
+                            <g clip-path="url(#${npc.clipId})">
+                                <image href="${photoSrc}" xlink:href="${npc.id}.jpg" x="${ix}" y="${iy}" width="${iw}" height="${ih}" preserveAspectRatio="xMidYMin slice"/>
+                            </g>`;
+                        } else {
+                            headGraphic = `
+                            <circle cx="62" cy="45" r="40" fill="#FFE0B2"/>
+                            <path d="M22 42 C32 16, 92 16, 102 42 Z" fill="${npc.hairColor}"/>
+                            <ellipse cx="46" cy="46" rx="7" ry="10" fill="#212121"/>
+                            <ellipse cx="78" cy="46" rx="7" ry="10" fill="#212121"/>
+                            <circle cx="44" cy="42" r="3" fill="#FFFFFF"/>
+                            <circle cx="76" cy="42" r="3" fill="#FFFFFF"/>
+                            <path d="M54 60 Q62 68 70 60" stroke="#5D4037" stroke-width="3" stroke-linecap="round" fill="none"/>`;
+                        }
+
+                        const nameTagGraphic = npc.showTag ? `
+                        <g transform="translate(62, -14)">
+                            <rect x="-38" y="-12" width="76" height="24" rx="12" fill="rgba(0,0,0,0.8)" stroke="#ffffff" stroke-width="2"/>
+                            <text x="0" y="2" fill="#ffffff" font-size="14" font-weight="900" text-anchor="middle" dominant-baseline="middle">${npc.name}</text>
+                        </g>` : '';
+
+                        const isDeskFixedNpc = (npc.id === 'npc_geunsik' || npc.id === 'npc_chanyoung');
+                        
+                        const deskMarkup = (isApproachingNpc) ? '' : `
+                            <rect x="0" y="115" width="125" height="20" rx="4" fill="#8D6E63" stroke="#4E342E" stroke-width="2"/>
+                            <rect x="12" y="135" width="10" height="30" fill="#5D4037"/>
+                            <rect x="100" y="135" width="10" height="30" fill="#5D4037"/>
+                        `;
+
+                        const unifiedStandingBody = `
+                            <rect x="34" y="125" width="15" height="25" rx="5" fill="#263238"/>
+                            <rect x="71" y="125" width="15" height="25" rx="5" fill="#263238"/>
+                            <ellipse cx="41" cy="152" rx="10" ry="6" fill="#D84315"/>
+                            <ellipse cx="78" cy="152" rx="10" ry="6" fill="#D84315"/>
+                            <path d="M 15 95 Q 65 84 115 95 L 123 140 Q 65 145 7 140 Z" fill="${npc.shirtColor}"/>
+                            <rect x="4" y="95" width="14" height="38" rx="7" fill="${npc.shirtColor}" transform="rotate(12 11 95)"/>
+                            <rect x="112" y="95" width="14" height="38" rx="7" fill="${npc.shirtColor}" transform="rotate(-12 119 95)"/>
+                            <circle cx="7" cy="133" r="6" fill="#FFCC80"/>
+                            <circle cx="123" cy="133" r="6" fill="#FFCC80"/>
+                        `;
+
+                        if (isDeskFixedNpc && !isApproachingNpc) {
+                            npcsGraphic += `
+                            <g class="${walkClass}" transform="translate(${posX}, ${posY}) scale(0.48)" filter="url(#shadow3D)">
+                                <g class="${innerJumpClass}">
+                                    ${unifiedStandingBody}
+                                    ${headGraphic}
+                                    ${nameTagGraphic}
+                                    <text x="36" y="-8" font-size="28">💬</text>
+                                </g>
+                                ${deskMarkup}
+                            </g>`;
+                        } else {
+                            npcsGraphic += `
+                            <g class="${walkClass}" transform="translate(${posX}, ${posY}) scale(0.48)" filter="url(#shadow3D)">
+                                <g class="${innerJumpClass}">
+                                    ${unifiedStandingBody}
+                                    ${headGraphic}
+                                    ${deskMarkup}
+                                    ${nameTagGraphic}
+                                    <text x="36" y="-8" font-size="28">💬</text>
+                                </g>
+                            </g>`;
+                        }
+                    });
+
+                    return `
+                    <svg id="walk-map-svg" width="100%" height="100%" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        ${defs3D}
+                        <rect x="0" y="0" width="400" height="520" fill="#E8D5B7"/>
+                        <line x1="0" y1="170" x2="400" y2="170" stroke="#D7CCC8" stroke-width="4"/>
+                        <line x1="0" y1="320" x2="400" y2="320" stroke="#D7CCC8" stroke-width="4"/>
+                        ${classroomWindows}
+                        ${backDesksPersistent}
+                        ${npcsGraphic}
+                        <g id="player-avatar-3d" transform="translate(${playerPos.x}, ${playerPos.y}) scale(0.48)" filter="url(#shadow3D)">
+                            <ellipse id="player-shadow" cx="65" cy="158" rx="36" ry="9" fill="#000" opacity="0.25"/>
+                            <g id="player-inner-body" class="${dialogueState === 'ALL_TOGETHER' ? 'all-jumping-body' : ''}">
+                                <rect x="34" y="125" width="15" height="25" rx="5" fill="#263238"/>
+                                <rect x="71" y="125" width="15" height="25" rx="5" fill="#263238"/>
+                                <ellipse cx="41" cy="152" rx="10" ry="6" fill="#D84315"/>
+                                <ellipse cx="78" cy="152" rx="10" ry="6" fill="#D84315"/>
+                                <path d="M 15 95 Q 65 84 115 95 L 123 140 Q 65 145 7 140 Z" fill="url(#shirtSD)"/>
+                                <rect x="4" y="95" width="14" height="38" rx="7" fill="#1A1A1A" transform="rotate(12 11 95)"/>
+                                <rect x="112" y="95" width="14" height="38" rx="7" fill="#1A1A1A" transform="rotate(-12 119 95)"/>
+                                <circle cx="7" cy="133" r="6" fill="#FFCC80"/>
+                                <circle cx="123" cy="133" r="6" fill="#FFCC80"/>
+                                <g transform="translate(65, -14)">
+                                    <rect x="-38" y="-12" width="76" height="24" rx="12" fill="#2E7D32" stroke="#ffffff" stroke-width="2"/>
+                                    <text x="0" y="2" fill="#ffffff" font-size="14" font-weight="900" text-anchor="middle" dominant-baseline="middle">배진울</text>
+                                </g>
+                                <g clip-path="url(#headCutoutStrict)">
+                                    <image href="${processedHeadUrl}" xlink:href="증사.jpg" x="-5" y="-8" width="140" height="210" preserveAspectRatio="xMidYMin slice"/>
+                                </g>
+                            </g>
+                        </g>
+                    </svg>`;
+                }
+
+                if (sceneIndex === 5) {
+                    const renderHansbinCharacter = (name, shirtColor, headClip, photoUrl, imgAttrs, isSpeaking) => {
+                        const speakClass = isSpeaking ? 'hansbin-speaking' : '';
+                        const ix = imgAttrs.x;
+                        const iy = imgAttrs.y;
+                        const iw = imgAttrs.w;
+                        const ih = imgAttrs.h;
+                        return `
+                        <g filter="url(#shadow3D)" class="${speakClass}">
+                            <path d="M 18 85 L 112 85 L 122 135 L 8 135 Z" fill="${shirtColor}"/>
+                            <g transform="translate(14, 88)">
+                                <rect x="-8" y="0" width="14" height="32" rx="7" fill="${shirtColor}" transform="rotate(-25)"/>
+                                <circle cx="-6" cy="28" r="5" fill="#FFCC80"/>
+                                <rect x="-12" y="22" width="2" height="22" rx="1" fill="#B0BEC5" transform="rotate(-35 -12 22)"/>
+                                <rect x="-8" y="24" width="2" height="22" rx="1" fill="#78909C" transform="rotate(-35 -8 24)"/>
+                            </g>
+                            <g transform="translate(114, 88)">
+                                <rect x="-6" y="0" width="14" height="32" rx="7" fill="${shirtColor}" transform="rotate(25)"/>
+                                <circle cx="12" cy="28" r="5" fill="#FFCC80"/>
+                                <rect x="8" y="22" width="3" height="18" rx="1.5" fill="#CFD8DC" transform="rotate(35 8 22)"/>
+                                <ellipse cx="16" cy="38" rx="5" ry="4" fill="#B0BEC5" transform="rotate(35 16 38)"/>
+                            </g>
+                            <g clip-path="url(#${headClip})">
+                                <image href="${photoUrl}" x="${ix}" y="${iy}" width="${iw}" height="${ih}"/>
+                            </g>
+                            <g transform="translate(65, -16)">
+                                <rect x="-38" y="-12" width="76" height="24" rx="12" fill="rgba(0,0,0,0.8)" stroke="#fff" stroke-width="2"/>
+                                <text x="0" y="2" fill="#fff" font-size="14" font-weight="900" text-anchor="middle" dominant-baseline="middle">${name}</text>
+                            </g>
+                        </g>`;
+                    };
+
+                    const speakingYoungwoo = (hansbinTalkStep === 3);
+                    const speakingGeunsik = false;
+                    const speakingJinul = (hansbinTalkStep === 1);
+                    const speakingChanyoung = false;
+                    const speakingKangbin = (hansbinTalkStep === 2);
+
+                    return `
+                    <svg width="100%" height="100%" viewBox="0 0 400 450" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        ${defs3D}
+                        <rect x="0" y="0" width="400" height="240" fill="#FFF8E7"/>
+                        <rect x="0" y="240" width="400" height="210" fill="#D7CCC8"/>
+                        <line x1="0" y1="240" x2="400" y2="240" stroke="#8D6E63" stroke-width="5"/>
+
+                        <g transform="translate(65, 10)" filter="url(#shadow3D)">
+                            <rect x="0" y="0" width="270" height="42" rx="8" fill="#37474F" stroke="#78909C" stroke-width="3"/>
+                            <text x="135" y="26" fill="#FFF59D" font-size="16" font-weight="900" text-anchor="middle" dominant-baseline="middle">한스빈 메뉴 : 제육볶음&김치찌개</text>
+                        </g>
+
+                        <g transform="translate(10, 112) scale(0.42)">
+                            ${renderHansbinCharacter("김영우", "#1565C0", "headCutoutStandard", processedYoungwooUrl, {x: -12, y: -14, w: 150, h: 195}, speakingYoungwoo)}
+                        </g>
+                        <g transform="translate(82, 100) scale(0.42)">
+                            ${renderHansbinCharacter("박근식", "#3F51B5", "headCutoutGeunsik", processedGeunsikUrl, {x: 12, y: -2, w: 100, h: 125}, speakingGeunsik)}
+                        </g>
+                        <g transform="translate(160, 92) scale(0.42)">
+                            ${renderHansbinCharacter("배진울", "#222222", "headCutoutStrict", processedHeadUrl, {x: -5, y: -8, w: 140, h: 210}, speakingJinul)}
+                        </g>
+                        <g transform="translate(238, 100) scale(0.42)">
+                            ${renderHansbinCharacter("김찬영", "#D84315", "headCutoutStandard", processedChanyoungUrl, {x: -12, y: -15, w: 150, h: 195}, speakingChanyoung)}
+                        </g>
+                        <g transform="translate(310, 112) scale(0.42)">
+                            ${renderHansbinCharacter("박강빈", "#2E7D32", "headCutoutKangbinUltra", processedKangbinUrl, {x: -2, y: 8, w: 130, h: 155}, speakingKangbin)}
+                        </g>
+
+                        <ellipse cx="200" cy="220" rx="190" ry="72" fill="#795548" stroke="#4E342E" stroke-width="6" filter="url(#shadow3D)"/>
+                        <ellipse cx="200" cy="215" rx="176" ry="62" fill="#A1887F"/>
+                        <ellipse cx="200" cy="215" rx="164" ry="54" fill="#D7CCC8" opacity="0.3"/>
+
+                        <ellipse cx="200" cy="200" rx="28" ry="16" fill="#37474F" stroke="#263238" stroke-width="3"/>
+                        <ellipse cx="200" cy="199" rx="22" ry="12" fill="#D84315"/>
+                        <circle cx="192" cy="197" r="4" fill="#4CAF50"/>
+                        <circle cx="205" cy="200" r="5" fill="#FFF9C4"/>
+                        <g class="steam-effect-1">
+                            <path d="M 190 187 Q 192 177 188 171" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                            <path d="M 210 188 Q 212 180 208 173" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                        </g>
+
+                        <ellipse cx="125" cy="190" rx="28" ry="16" fill="#FFFFFF" stroke="#CFD8DC" stroke-width="2"/>
+                        <path d="M 108 188 Q 125 180 142 188 Q 125 197 108 198 Z" fill="#E64A19"/>
+
+                        <ellipse cx="275" cy="190" rx="28" ry="16" fill="#FFFFFF" stroke="#CFD8DC" stroke-width="2"/>
+                        <ellipse cx="275" cy="189" rx="22" ry="12" fill="#8D6E63"/>
+
+                        <g transform="translate(60, 210)">
+                            <rect x="0" y="0" width="36" height="20" rx="4" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="1.5"/>
+                            <circle cx="8" cy="6" r="3" fill="#FFFFFF"/>
+                            <circle cx="22" cy="6" r="3" fill="#FFE0B2"/>
+                        </g>
+
+                        <g transform="translate(304, 210)">
+                            <rect x="0" y="0" width="36" height="20" rx="4" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="1.5"/>
+                            <circle cx="8" cy="6" r="3" fill="#FFFFFF"/>
+                            <circle cx="22" cy="6" r="3" fill="#FFE0B2"/>
+                        </g>
+
+                        <rect x="225" y="215" width="10" height="15" rx="2" fill="#E53935"/>
+                        <rect x="238" y="213" width="10" height="15" rx="2" fill="#43A047"/>
+
+                        <text x="35" y="145" font-size="20">😋</text>
+                        <text x="345" y="145" font-size="20">✨</text>
+                    </svg>`;
+                }
+
+                /* ---------------- [ 카페 스터디 장면 ] ---------------- */
+                if (sceneIndex === 6) {
+                    const renderCafeCharacter = (name, shirtColor, headClip, photoUrl, imgAttrs) => {
+                        const ix = imgAttrs.x;
+                        const iy = imgAttrs.y;
+                        const iw = imgAttrs.w;
+                        const ih = imgAttrs.h;
+                        return `
+                        <g filter="url(#shadow3D)">
+                            <path d="M 15 75 L 115 75 L 125 125 L 5 125 Z" fill="${shirtColor}"/>
+                            <g transform="translate(12, 78)">
+                                <rect x="-8" y="0" width="14" height="28" rx="7" fill="${shirtColor}" transform="rotate(-25)"/>
+                                <circle cx="-6" cy="24" r="5" fill="#FFCC80"/>
+                            </g>
+                            <g transform="translate(118, 78)">
+                                <rect x="-6" y="0" width="14" height="28" rx="7" fill="${shirtColor}" transform="rotate(25)"/>
+                                <circle cx="12" cy="24" r="5" fill="#FFCC80"/>
+                            </g>
+                            <g clip-path="url(#${headClip})">
+                                <image href="${photoUrl}" x="${ix}" y="${iy}" width="${iw}" height="${ih}"/>
+                            </g>
+                            <g transform="translate(65, -20)">
+                                <rect x="-38" y="-12" width="76" height="24" rx="12" fill="rgba(0,0,0,0.85)" stroke="#fff" stroke-width="2"/>
+                                <text x="0" y="2" fill="#fff" font-size="14" font-weight="900" text-anchor="middle" dominant-baseline="middle">${name}</text>
+                            </g>
+                        </g>`;
+                    };
+
+                    const renderStudyItem = (bookX, bookY, coffeeX, coffeeY) => {
+                        return `
+                        <!-- 책 -->
+                        <g transform="translate(${bookX}, ${bookY})" filter="url(#shadow3D)">
+                            <rect x="0" y="0" width="38" height="24" rx="2" fill="#37474F" stroke="#263238" stroke-width="2"/>
+                            <rect x="3" y="3" width="32" height="18" fill="#FFFFFF"/>
+                            <line x1="19" y1="3" x2="19" y2="21" stroke="#B0BEC5" stroke-width="1.5"/>
+                            <line x1="6" y1="7" x2="15" y2="7" stroke="#90A4AE" stroke-width="1.5"/>
+                            <line x1="6" y1="11" x2="15" y2="11" stroke="#90A4AE" stroke-width="1.5"/>
+                            <line x1="23" y1="7" x2="32" y2="7" stroke="#90A4AE" stroke-width="1.5"/>
+                            <line x1="23" y1="11" x2="30" y2="11" stroke="#90A4AE" stroke-width="1.5"/>
+                        </g>
+                        <!-- 커피잔 -->
+                        <g transform="translate(${coffeeX}, ${coffeeY})" filter="url(#shadow3D)">
+                            <ellipse cx="8" cy="16" rx="7" ry="3" fill="#000" opacity="0.3"/>
+                            <path d="M 3 4 L 13 4 L 12 15 C 12 17, 4 17, 4 15 Z" fill="#ECEFF1" stroke="#B0BEC5" stroke-width="1"/>
+                            <path d="M 12 6 C 15 6, 15 12, 12 13" stroke="#B0BEC5" stroke-width="1.5" fill="none"/>
+                            <ellipse cx="8" cy="4" rx="5" ry="2" fill="#6D4C41"/>
+                            <path d="M 6 1 Q 7 0, 8 1" stroke="#FFF" stroke-width="1" stroke-linecap="round" fill="none"/>
+                        </g>`;
+                    };
+
+                    return `
+                    <svg width="100%" height="100%" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                        ${defs3D}
+                        <defs>
+                            <pattern id="cafeBgPattern" width="400" height="520" patternUnits="userSpaceOnUse">
+                                <image href="카페 배경_3.jpg" width="400" height="520" preserveAspectRatio="xMidYMid slice"/>
+                            </pattern>
+                        </defs>
+                        <rect x="0" y="0" width="400" height="520" fill="url(#cafeBgPattern)"/>
+                        <rect x="0" y="0" width="400" height="520" fill="rgba(0, 0, 0, 0.35)"/>
+
+                        <g transform="translate(18, 115) scale(0.52)">
+                            ${renderCafeCharacter("김영우", "#1565C0", "headCutoutStandard", processedYoungwooUrl, {x: -12, y: -14, w: 150, h: 195})}
+                        </g>
+                        <g transform="translate(88, 105) scale(0.52)">
+                            ${renderCafeCharacter("박근식", "#3F51B5", "headCutoutGeunsik", processedGeunsikUrl, {x: 12, y: -2, w: 100, h: 125})}
+                        </g>
+                        <g transform="translate(160, 97) scale(0.52)">
+                            ${renderCafeCharacter("배진울", "#222222", "headCutoutStrict", processedHeadUrl, {x: -5, y: -8, w: 140, h: 210})}
+                        </g>
+                        <g transform="translate(232, 105) scale(0.52)">
+                            ${renderCafeCharacter("김찬영", "#D84315", "headCutoutStandard", processedChanyoungUrl, {x: -12, y: -15, w: 150, h: 195})}
+                        </g>
+                        <g transform="translate(302, 115) scale(0.52)">
+                            ${renderCafeCharacter("박강빈", "#2E7D32", "headCutoutKangbinUltra", processedKangbinUrl, {x: -2, y: 8, w: 130, h: 155})}
+                        </g>
+
+                        <ellipse cx="200" cy="235" rx="160" ry="55" fill="#3E2723" stroke="#271C19" stroke-width="4" filter="url(#shadow3D)"/>
+                        <ellipse cx="200" cy="231" rx="148" ry="46" fill="#5D4037"/>
+
+                        ${renderStudyItem(48, 215, 88, 219)}
+                        ${renderStudyItem(116, 222, 156, 225)}
+                        ${renderStudyItem(181, 219, 221, 223)}
+                        ${renderStudyItem(246, 222, 286, 225)}
+                        ${renderStudyItem(314, 215, 354, 219)}
+
+                        <text x="35" y="140" font-size="20">☕</text>
+                        <text x="345" y="140" font-size="20">📚</text>
+                    </svg>`;
+                }
+
+                const isFirstClass = (sceneIndex === 1);
+                const isHairFalling = (sceneIndex === 2);
+                
+                let blackboardContent = '';
+                if (isFirstClass) {
+                    blackboardContent = `
+                    <text x="38" y="40" fill="#ffffff" font-size="18" font-weight="bold">석유화학공업</text>
+                    <text x="38" y="66" fill="#ffd54f" font-size="14" font-weight="bold">【 원유의 증류순서 】</text>
+                    <text x="38" y="92" fill="#81d4fa" font-size="13" font-weight="bold">1단계: LPG ➔ 2단계: 나프타 (휘발유 원료)</text>
+                    <text x="38" y="116" fill="#a5d6a7" font-size="13" font-weight="bold">3단계: 등유 ➔ 4단계: 경유 ➔ 5단계: 중유</text>
+                    <text x="38" y="138" fill="#ffab91" font-size="12" font-weight="bold">※ 상압증류탑에서 끓는점에 따라 분리됨</text>`;
+                } else if (isHairFalling) {
+                    blackboardContent = `
+                    <text x="38" y="40" fill="#ffffff" font-size="18" font-weight="bold">석유화학공업</text>
+                    <text x="38" y="66" fill="#ffd54f" font-size="14" font-weight="bold">【 기초 탄화수소 분류 】</text>
+                    <text x="38" y="92" fill="#81d4fa" font-size="13" font-weight="bold">파라핀계(포화) | 올레핀계(불포화)</text>
+                    <text x="38" y="116" fill="#ffccbc" font-size="13" font-weight="bold">⚠️ CnH2n+2 ➔ C2H4 + C3H6 🤯</text>
+                    <text x="38" y="138" fill="#a5d6a7" font-size="12" font-weight="bold">방향족(BTX): 벤젠, 톨루엔, 자일렌</text>`;
+                } else {
+                    blackboardContent = `
+                    <text x="38" y="40" fill="#ffffff" font-size="18" font-weight="bold">석유화학공업</text>
+                    <text x="38" y="66" fill="#ffd54f" font-size="14" font-weight="bold">【 기초 탄화수소 분류 】</text>
+                    <text x="38" y="92" fill="#81d4fa" font-size="13" font-weight="bold">파라핀계 (포화탄화수소 - 알칸계열)</text>
+                    <text x="38" y="116" fill="#a5d6a7" font-size="13" font-weight="bold">올레핀계 (불포화탄화수소 - 에틸렌, 프로필렌)</text>
+                    <text x="38" y="138" fill="#ffab91" font-size="12" font-weight="bold">방향족 탄화수소 (BTX 공정 핵심)</text>`;
+                }
+
+                return `
+                <svg width="100%" height="100%" viewBox="0 0 400 450" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    ${defs3D}
+                    <rect x="0" y="0" width="400" height="340" fill="#E8E0D0"/>
+                    <rect x="0" y="340" width="400" height="110" fill="#BCAAA4"/>
+                    <line x1="0" y1="340" x2="400" y2="340" stroke="#8D6E63" stroke-width="6"/>
+
+                    <rect x="20" y="15" width="360" height="145" rx="10" fill="#1b4d3e" stroke="#5d4037" stroke-width="8" filter="url(#shadow3D)"/>
+                    ${blackboardContent}
+                    <line x1="38" y1="124" x2="360" y2="124" stroke="rgba(255,255,255,0.25)" stroke-dasharray="6,6"/>
+
+                    <rect x="155" y="195" width="90" height="70" rx="10" fill="#5D4037" filter="url(#shadow3D)"/>
+
+                    <g transform="translate(135, 135)" filter="url(#shadow3D)">
+                        <path d="M 15 95 Q 65 84 115 95 L 123 170 Q 65 175 7 170 Z" fill="url(#shirtSD)"/>
+                        <path d="M 15 95 Q 0 130 25 145" stroke="#2D2D2D" stroke-width="16" stroke-linecap="round" fill="none"/>
+                        <path d="M 115 95 Q 130 130 105 145" stroke="#2D2D2D" stroke-width="16" stroke-linecap="round" fill="none"/>
+                        <g transform="translate(65, 140)">
+                            <rect x="-35" y="-11" width="70" height="22" rx="11" fill="#2E7D32" stroke="#ffffff" stroke-width="2"/>
+                            <text x="0" y="2" fill="#ffffff" font-size="13" font-weight="900" text-anchor="middle" dominant-baseline="middle">배진울</text>
+                        </g>
+                        <g clip-path="url(#headCutoutStrict)">
+                            <image href="${processedHeadUrl}" xlink:href="증사.jpg" x="-5" y="-8" width="140" height="210" preserveAspectRatio="xMidYMin slice"/>
+                        </g>
+                        ${isHairFalling ? `
+                            <g class="falling-hair-1"><path d="M 22 18 Q 15 26 12 36" stroke="#1A1A1A" stroke-width="5" stroke-linecap="round" fill="none"/></g>
+                            <g class="falling-hair-2"><path d="M 108 20 Q 116 28 122 38" stroke="#1A1A1A" stroke-width="5" stroke-linecap="round" fill="none"/></g>
+                            <g class="falling-hair-3"><path d="M 65 12 Q 62 22 68 32" stroke="#1A1A1A" stroke-width="4.5" stroke-linecap="round" fill="none"/></g>
+                        ` : ''}
+                    </g>
+
+                    <g filter="url(#shadow3D)">
+                        <rect x="80" y="270" width="240" height="35" rx="6" fill="#8D6E63" stroke="#4E342E" stroke-width="3"/>
+                        <rect x="88" y="275" width="224" height="8" rx="2" fill="#A1887F" opacity="0.6"/>
+                        <rect x="95" y="305" width="16" height="100" fill="#5D4037"/>
+                        <rect x="289" y="305" width="16" height="100" fill="#5D4037"/>
+                        <circle cx="160" cy="282" r="8" fill="#FFCC80"/>
+                        <circle cx="240" cy="282" r="8" fill="#FFCC80"/>
+                        <rect x="180" y="273" width="40" height="22" rx="3" fill="#42A5F5" stroke="#1E88E5" stroke-width="1.5"/>
+                        <line x1="200" y1="273" x2="200" y2="295" stroke="#ffffff" stroke-width="1.5"/>
+                    </g>
+                </svg>`;
+            }
+
+            const joystickContainer = document.getElementById('joystick-container');
+            const joystickThumb = document.getElementById('joystick-thumb');
+
+            function handleJoystickStart(e) {
+                isJoystickActive = true;
+                hasMovedInWalkMode = true;
+                updateMissionBannerVisibility();
+                updateJoystick(e);
+            }
+
+            function handleJoystickMove(e) {
+                if (!isJoystickActive) return;
+                updateJoystick(e);
+            }
+
+            function handleJoystickEnd() {
+                isJoystickActive = false;
+                joystickVec = { x: 0, y: 0 };
+                if (joystickThumb) joystickThumb.style.transform = `translate(0px, 0px)`;
+            }
+
+            function updateJoystick(e) {
+                const rect = joystickContainer.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const touch = e.touches ? e.touches[0] : e;
+                let dx = touch.clientX - centerX;
+                let dy = touch.clientY - centerY;
+                const maxRadius = rect.width / 2.8;
+                const distance = Math.hypot(dx, dy);
+                if (distance > maxRadius) {
+                    dx = (dx / distance) * maxRadius;
+                    dy = (dy / distance) * maxRadius;
+                }
+                if (joystickThumb) joystickThumb.style.transform = `translate(${dx}px, ${dy}px)`;
+                joystickVec.x = dx / maxRadius;
+                joystickVec.y = dy / maxRadius;
+            }
+
+            if (joystickContainer) {
+                joystickContainer.addEventListener('touchstart', handleJoystickStart, { passive: false });
+                window.addEventListener('touchmove', handleJoystickMove, { passive: false });
+                window.addEventListener('touchend', handleJoystickEnd);
+                joystickContainer.addEventListener('mousedown', handleJoystickStart);
+                window.addEventListener('mousemove', handleJoystickMove);
+                window.addEventListener('mouseup', handleJoystickEnd);
+            }
+
+            window.addEventListener('keydown', e => {
+                keysPressed[e.key] = true;
+                if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','w','a','s','d'].includes(e.key)) {
+                    hasMovedInWalkMode = true;
+                    updateMissionBannerVisibility();
+                }
+            });
+            window.addEventListener('keyup', e => keysPressed[e.key] = false);
+
+            function updatePlayerFace() {
+                const bodyElem = document.getElementById('player-inner-body');
+                const shadowElem = document.getElementById('player-shadow');
+                const isJumping = (dialogueState === 'GEUNSIK_4');
+                if (bodyElem) {
+                    if (isJumping) {
+                        bodyElem.classList.add('joy-jumping-body');
+                        if (shadowElem) shadowElem.classList.add('joy-jumping-shadow');
+                    } else {
+                        bodyElem.classList.remove('joy-jumping-body');
+                        if (shadowElem) shadowElem.classList.remove('joy-jumping-shadow');
+                    }
+                }
+            }
+
+            function updateMissionBannerVisibility() {
+                const banner = document.getElementById('mission-banner');
+                const current = scenarios[gameData.currentScene];
+                if (banner) {
+                    if (current && current.isWalkMode && !hasMovedInWalkMode) {
+                        banner.style.display = 'block';
+                    } else {
+                        banner.style.display = 'none';
+                    }
+                }
+            }
+
+            function gameLoop() {
+                const current = scenarios[gameData.currentScene];
+                if (current && current.isWalkMode) {
+                    let moveX = joystickVec.x;
+                    let moveY = joystickVec.y;
+
+                    if (keysPressed['ArrowLeft'] || keysPressed['a']) { moveX = -1; hasMovedInWalkMode = true; }
+                    if (keysPressed['ArrowRight'] || keysPressed['d']) { moveX = 1; hasMovedInWalkMode = true; }
+                    if (keysPressed['ArrowUp'] || keysPressed['w']) { moveY = -1; hasMovedInWalkMode = true; }
+                    if (keysPressed['ArrowDown'] || keysPressed['s']) { moveY = 1; hasMovedInWalkMode = true; }
+
+                    if (moveX !== 0 || moveY !== 0) {
+                        updateMissionBannerVisibility();
+                    }
+
+                    playerPos.x += moveX * moveSpeed;
+                    playerPos.y += moveY * moveSpeed;
+                    playerPos.x = Math.max(20, Math.min(360, playerPos.x));
+                    playerPos.y = Math.max(30, Math.min(460, playerPos.y));
+
+                    const playerElem = document.getElementById('player-avatar-3d');
+                    if (playerElem) {
+                        playerElem.setAttribute('transform', `translate(${playerPos.x}, ${playerPos.y}) scale(0.48)`);
+                    }
+
+                    updatePlayerFace();
+
+                    let closeNpc = null;
+                    classroomNpcs.forEach(npc => {
+                        const dist = Math.hypot(playerPos.x - npc.x, playerPos.y - npc.y);
+                        if (dist < 55) closeNpc = npc;
+                    });
+
+                    const txtElem = document.getElementById('dialogue-text');
+                    const tapIndicator = document.getElementById('tap-indicator');
+
+                    if (closeNpc) {
+                        if (currentNearbyNpc !== closeNpc && dialogueState === 'IDLE') {
+                            currentNearbyNpc = closeNpc;
+                            dialogueState = 'PROMPT';
+                        }
+
+                        if (dialogueState === 'PROMPT') {
+                            if (txtElem) txtElem.innerHTML = `👦 <b>배진울:</b> "안녕? 나는 배진울 이라고 해! 석유화학공업 강의 어렵지 않았니...?"`;
+                            if (tapIndicator) tapIndicator.innerText = "👇 터치하여 동기의 대답 듣기";
+                        } else if (closeNpc.isTarget) {
+                            if (dialogueState === 'GEUNSIK_1') {
+                                if (txtElem) txtElem.innerHTML = `🧑 <b>박근식:</b> "맞아...너무 어렵더라 ㅠ 혹시 몇 살이야?"`;
+                                if (tapIndicator) tapIndicator.innerText = "👇 터치하여 나이 대답하기";
+                            } else if (dialogueState === 'GEUNSIK_2') {
+                                if (txtElem) txtElem.innerHTML = `👦 <b>배진울:</b> "나는 22살이야!"`;
+                                if (tapIndicator) tapIndicator.innerText = "👇 터치하여 근식이 대답 듣기";
+                            } else if (dialogueState === 'GEUNSIK_3') {
+                                if (txtElem) txtElem.innerHTML = `🧑 <b>박근식:</b> "오! 나도 22살이야! 우리 친구할래...? 같이 공부도 하고 밥도 먹고!!"`;
+                                if (tapIndicator) tapIndicator.innerText = "👇 터치하여 대답하기";
+                            } else if (dialogueState === 'GEUNSIK_4') {
+                                if (txtElem) txtElem.innerHTML = `👦 <b>배진울:</b> "좋아 근식아!!"`;
+                                if (tapIndicator) tapIndicator.innerText = "🚶 동기들이 걸어오는 중...";
+                            } else if (dialogueState === 'APPROACH_TALK_1') {
+                                if (txtElem) txtElem.innerHTML = `🧑 <b>김영우:</b> "안녕 얘들아? 석유화학공업 강의 이해됐니...?"`;
+                                if (tapIndicator) tapIndicator.innerText = "👇 터치하여 대화 이어가기";
+                            } else if (dialogueState === 'APPROACH_TALK_2') {
+                                if (txtElem) txtElem.innerHTML = `🧑 <b>박강빈:</b> "우리 다같이 공부해볼래...?"`;
+                                if (tapIndicator) tapIndicator.innerText = "👇 터치하여 대화 이어가기";
+                            } else if (dialogueState === 'APPROACH_TALK_3') {
+                                if (txtElem) txtElem.innerHTML = `🧑 <b>김찬영:</b> "좋아! 일단 점심시간이니까 한스빈 먹으러 가자!!"`;
+                                if (tapIndicator) tapIndicator.innerText = "👇 터치하여 대답하기";
+                            } else if (dialogueState === 'ALL_TOGETHER') {
+                                if (txtElem) txtElem.innerHTML = `🙌 <b>다같이 :</b> "좋아!!"`;
+                                if (tapIndicator) tapIndicator.innerText = "✨ 한스빈으로 이동하기! (터치)";
+                            }
+                        } else {
+                            if (dialogueState === 'TALKING') {
+                                if (txtElem) txtElem.innerHTML = `🧑 <b>${closeNpc.reply}</b>`;
+                                if (tapIndicator) tapIndicator.innerText = "👉 다른 동기에게 다가가 말을 걸어보세요.";
+                            }
+                        }
+                    } else {
+                        if (dialogueState === 'IDLE' || dialogueState === 'PROMPT' || dialogueState === 'TALKING') {
+                            currentNearbyNpc = null;
+                            dialogueState = 'IDLE';
+                            if (txtElem && current.isWalkMode) txtElem.innerText = "🎯 박근식을 찾아 대화를 나누세요!";
+                            if (tapIndicator) tapIndicator.innerText = "🎯 박근식을 찾아 다가가보세요!";
+                        }
+                    }
+                }
+                requestAnimationFrame(gameLoop);
+            }
+            requestAnimationFrame(gameLoop);
+
+            window.startGame = function() {
+                const titleElement = document.getElementById('title-screen');
+                if (titleElement) titleElement.style.display = 'none';
+                isStarted = true;
+                
+                startDynamicHealingBGM();
+                renderScene();
+            };
+
+            window.handleScreenClick = function() {
+                if (!isStarted) return;
+                const current = scenarios[gameData.currentScene];
+                
+                if (current && current.isWalkMode) {
+                    if (currentNearbyNpc) {
+                        if (currentNearbyNpc.isTarget) {
+                            if (dialogueState === 'PROMPT') dialogueState = 'GEUNSIK_1';
+                            else if (dialogueState === 'GEUNSIK_1') dialogueState = 'GEUNSIK_2';
+                            else if (dialogueState === 'GEUNSIK_2') dialogueState = 'GEUNSIK_3';
+                            else if (dialogueState === 'GEUNSIK_3') {
+                                dialogueState = 'GEUNSIK_4';
+                                renderScene();
+                                setTimeout(() => {
+                                    if (dialogueState === 'GEUNSIK_4') {
+                                        dialogueState = 'APPROACH_TALK_1';
+                                        renderScene();
+                                    }
+                                }, 1100);
+                            }
+                            else if (dialogueState === 'GEUNSIK_4') { dialogueState = 'APPROACH_TALK_1'; renderScene(); }
+                            else if (dialogueState === 'APPROACH_TALK_1') { dialogueState = 'APPROACH_TALK_2'; renderScene(); }
+                            else if (dialogueState === 'APPROACH_TALK_2') { dialogueState = 'APPROACH_TALK_3'; renderScene(); }
+                            else if (dialogueState === 'APPROACH_TALK_3') { dialogueState = 'ALL_TOGETHER'; renderScene(); }
+                            else if (dialogueState === 'ALL_TOGETHER') {
+                                gameData.friendship += 5;
+                                updateUI();
+                                dialogueState = 'GEUNSIK_END';
+                                advanceDialogue();
+                            }
+                        } else {
+                            if (dialogueState === 'PROMPT') dialogueState = 'TALKING';
+                        }
+                    }
+                    return;
+                }
+
+                if (current && current.isHansbinTalk) {
+                    if (hansbinTalkStep === 0) {
+                        hansbinTalkStep = 1;
+                        const txtElem = document.getElementById('dialogue-text');
+                        if (txtElem) txtElem.innerHTML = `👦 <b>배진울 :</b> "오늘 시간되면 다같이 공부하러 가자"`;
+                        const graphicWrapper = document.getElementById('graphic-wrapper');
+                        if (graphicWrapper) graphicWrapper.innerHTML = getSceneGraphic(gameData.currentScene);
+                        return;
+                    } else if (hansbinTalkStep === 1) {
+                        hansbinTalkStep = 2;
+                        const txtElem = document.getElementById('dialogue-text');
+                        if (txtElem) txtElem.innerHTML = `🧑 <b>박강빈 :</b> "어디로 갈까?"`;
+                        const graphicWrapper = document.getElementById('graphic-wrapper');
+                        if (graphicWrapper) graphicWrapper.innerHTML = getSceneGraphic(gameData.currentScene);
+                        return;
+                    } else if (hansbinTalkStep === 2) {
+                        hansbinTalkStep = 3;
+                        const txtElem = document.getElementById('dialogue-text');
+                        if (txtElem) txtElem.innerHTML = `🧑 <b>김영우 :</b> "카페가 좋을 거 같아. 카페로 가자"`;
+                        const graphicWrapper = document.getElementById('graphic-wrapper');
+                        if (graphicWrapper) graphicWrapper.innerHTML = getSceneGraphic(gameData.currentScene);
+                        return;
+                    } else {
+                        hansbinTalkStep = 0;
+                    }
+                }
+
+                advanceDialogue();
+            };
+
+            function advanceDialogue() {
+                if (gameData.currentScene < scenarios.length - 1) {
+                    gameData.currentScene++;
+                } else {
+                    gameData.currentScene = 0;
+                    gameData.knowledge = 0;
+                    gameData.friendship = 0;
+                    playerPos = { x: 50, y: 450 };
+                    dialogueState = 'IDLE';
+                }
+                hasMovedInWalkMode = false;
+
+                if (gameData.currentScene === 5) {
+                    gameData.friendship += 5;
+                }
+                if (gameData.currentScene === 6) {
+                    gameData.knowledge += 5;
+                }
+
+                renderScene();
+            }
+
+            function updateUI() {
+                const kElem = document.getElementById('stat-knowledge');
+                const fElem = document.getElementById('stat-friendship');
+                if (kElem) kElem.innerText = gameData.knowledge;
+                if (fElem) fElem.innerText = gameData.friendship;
+            }
+
+            function renderScene() {
+                const current = scenarios[gameData.currentScene];
+                const locElem = document.getElementById('scene-location');
+                const txtElem = document.getElementById('dialogue-text');
+                const mainScreen = document.getElementById('main-screen');
+                const graphicWrapper = document.getElementById('graphic-wrapper');
+                const joystickUI = document.getElementById('joystick-container');
+                const tapIndicator = document.getElementById('tap-indicator');
+
+                if (locElem) locElem.innerText = current.location;
+                
+                if (current.isHansbinTalk && hansbinTalkStep === 0) {
+                    if (txtElem) txtElem.innerHTML = current.text;
+                } else if (!current.isHansbinTalk) {
+                    if (txtElem) txtElem.innerText = current.text;
+                }
+
+                if (gameData.currentScene === 0) {
+                    if (mainScreen) mainScreen.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url('image_28563c.jpg')";
+                } else {
+                    if (mainScreen) {
+                        mainScreen.style.backgroundImage = "none";
+                        mainScreen.style.background = "#e8e0d0";
+                    }
+                }
+
+                if (current.isWalkMode) {
+                    if (joystickUI) joystickUI.style.display = 'block';
+                    if (tapIndicator) tapIndicator.innerText = "🎯 박근식을 찾아 대화를 나누세요!";
+                } else {
+                    if (joystickUI) joystickUI.style.display = 'none';
+                    if (tapIndicator) tapIndicator.innerText = "화면을 터치하세요 ▼";
+                }
+
+                if (graphicWrapper) graphicWrapper.innerHTML = getSceneGraphic(gameData.currentScene);
+                updateMissionBannerVisibility();
+                updateUI();
+            }
+
+            renderScene();
+        });
+    </script>
+</body>
+</html>
